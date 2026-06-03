@@ -1,20 +1,19 @@
 from fastapi import FastAPI
 from app.core.config import get_settings
 from app.core.events import lifespan
-from app.api.v1 import health
+from app.api.v1 import health, monitoring          # ← add monitoring
 
 settings = get_settings()
 
 app = FastAPI(
     title=settings.app_name,
     version=settings.app_version,
-    docs_url="/docs",        # Swagger UI
-    redoc_url="/redoc",      # ReDoc UI
+    docs_url="/docs",
+    redoc_url="/redoc",
     lifespan=lifespan,
 )
 
-# Store settings on app state so event handlers can access them
 app.state.settings = settings
 
-# Register routers
 app.include_router(health.router, prefix="/api/v1")
+app.include_router(monitoring.router, prefix="/api/v1")   # ← add this
