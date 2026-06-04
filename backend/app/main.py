@@ -1,8 +1,7 @@
 from fastapi import FastAPI
 from app.core.config import get_settings
 from app.core.events import lifespan
-from app.api.v1 import health, monitoring, stream        # ← add monitoring
-
+from app.api.v1 import health, monitoring, stream, history   
 settings = get_settings()
 
 app = FastAPI(
@@ -16,5 +15,6 @@ app = FastAPI(
 app.state.settings = settings
 
 app.include_router(health.router, prefix="/api/v1")
-app.include_router(monitoring.router, prefix="/api/v1")  
+app.include_router(monitoring.router, prefix="/api/v1")
 app.include_router(stream.router)
+app.include_router(history.router, prefix="/api/v1")   
