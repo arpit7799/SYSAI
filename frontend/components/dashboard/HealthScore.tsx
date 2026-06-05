@@ -1,64 +1,86 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { getHealthColor } from "@/lib/utils";
-import { Shield } from "lucide-react";
+import { Zap, TrendingUp } from "lucide-react";
 
-interface HealthScoreProps {
-  score: number;
-}
+interface Props { score: number; }
 
-export function HealthScore({ score }: HealthScoreProps) {
-  const color = getHealthColor(score);
-  const label =
-    score >= 80 ? "OPTIMAL" :
-    score >= 60 ? "GOOD" :
-    score >= 40 ? "DEGRADED" : "CRITICAL";
+export function HealthScore({ score }: Props) {
+  const isCritical = score < 50;
+  const color = isCritical ? "var(--valorant-red)" : "var(--text-primary)";
+  const label = isCritical ? "CRITICAL" : "OPTIMAL";
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="rounded-xl p-5 border flex items-center gap-5"
-      style={{
-        backgroundColor: "var(--bg-card)",
-        borderColor: "var(--border)",
-      }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="tactical-card clip-chamfer p-5 flex items-center gap-8 relative overflow-hidden"
     >
-      <div className="relative flex items-center justify-center w-16 h-16">
-        <svg className="w-16 h-16 -rotate-90" viewBox="0 0 64 64">
-          <circle cx="32" cy="32" r="26"
-            fill="none" stroke="var(--bg-secondary)" strokeWidth="6" />
-          <motion.circle cx="32" cy="32" r="26"
-            fill="none" stroke={color} strokeWidth="6"
-            strokeLinecap="round"
-            strokeDasharray={`${2 * Math.PI * 26}`}
-            animate={{
-              strokeDashoffset: 2 * Math.PI * 26 * (1 - score / 100)
-            }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          />
-        </svg>
-        <span className="absolute text-sm font-bold font-mono"
-              style={{ color }}>
+      {/* Score Block */}
+      <div className="relative flex-shrink-0 w-24 h-24 bg-[var(--bg-primary)] clip-chamfer flex flex-col items-center justify-center border-l-4 border-[var(--valorant-red)]">
+        <span
+          className="text-4xl font-black leading-none"
+          style={{ fontFamily: "var(--font-display)", color: "var(--text-bright)" }}
+        >
           {score.toFixed(0)}
+        </span>
+        <span
+          className="text-[10px] font-bold tracking-widest uppercase mt-1"
+          style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}
+        >
+          Score
         </span>
       </div>
 
-      <div>
-        <div className="flex items-center gap-2 mb-1">
-          <Shield size={14} style={{ color }} />
-          <span className="text-xs uppercase tracking-widest"
-                style={{ color: "var(--text-secondary)" }}>
-            System Health
+      {/* Info */}
+      <div className="relative z-10 flex-1 border-l-2 border-[var(--border)] pl-6">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="w-2 h-2 bg-[var(--valorant-red)] rotate-45" />
+          <span
+            className="text-xs font-bold tracking-[0.2em] uppercase"
+            style={{ fontFamily: "var(--font-display)", color: "var(--text-secondary)" }}
+          >
+            System Health Status
           </span>
         </div>
-        <p className="text-xl font-bold tracking-wider" style={{ color }}>
+        <p
+          className="text-3xl font-black mb-1 uppercase tracking-wide"
+          style={{ fontFamily: "var(--font-display)", color }}
+        >
           {label}
         </p>
-        <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
-          AI scoring active in Step 12
+        <p
+          className="text-sm font-bold uppercase"
+          style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}
+        >
+          Combat readiness verified
         </p>
+      </div>
+
+      {/* Right stats */}
+      <div className="relative z-10 space-y-4 border-l-2 border-[var(--border)] pl-6">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <Zap size={14} className="text-[var(--text-secondary)]" />
+            <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]" style={{ fontFamily: "var(--font-display)" }}>
+              Performance
+            </span>
+          </div>
+          <div className="h-1.5 w-32 bg-[var(--bg-primary)] overflow-hidden">
+            <div className="h-full bg-[var(--text-primary)]" style={{ width: `${Math.min(score + 5, 100)}%` }} />
+          </div>
+        </div>
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <TrendingUp size={14} className="text-[var(--text-secondary)]" />
+            <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]" style={{ fontFamily: "var(--font-display)" }}>
+              Stability
+            </span>
+          </div>
+          <div className="h-1.5 w-32 bg-[var(--bg-primary)] overflow-hidden">
+            <div className="h-full bg-[var(--text-primary)]" style={{ width: `${Math.max(score - 3, 0)}%` }} />
+          </div>
+        </div>
       </div>
     </motion.div>
   );

@@ -1,61 +1,105 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Wifi, WifiOff, Clock } from "lucide-react";
 import { useMetricsContext } from "@/components/providers/MetricsProvider";
+import { Signal, Clock4 } from "lucide-react";
 
 export function Navbar() {
-  const { connected } = useMetricsContext();
+  const { connected, snapshot } = useMetricsContext();
   const [time, setTime] = useState("");
+  const [date, setDate] = useState("");
 
   useEffect(() => {
-    const update = () => setTime(new Date().toLocaleTimeString());
+    const update = () => {
+      const now = new Date();
+      setTime(now.toLocaleTimeString("en-US", { hour12: false }));
+      setDate(now.toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }).toUpperCase());
+    };
     update();
-    const interval = setInterval(update, 1000);
-    return () => clearInterval(interval);
+    const i = setInterval(update, 1000);
+    return () => clearInterval(i);
   }, []);
 
   return (
     <header
-      className="h-14 flex items-center justify-between px-6 border-b"
+      className="h-12 flex items-center justify-between px-6 relative"
       style={{
         backgroundColor: "var(--bg-secondary)",
-        borderColor: "var(--border)",
+        borderBottom: "1px solid var(--border-bright)",
       }}
     >
-      <div className="flex items-center gap-2">
-        <span className="text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
-          Autonomous OS Optimization Engine
+      {/* Bottom accent */}
+      <div className="absolute bottom-0 left-0 right-0 h-px"
+           style={{ background: "linear-gradient(90deg, transparent, var(--neon-cyan), transparent)", opacity: 0.4 }} />
+
+      {/* Left */}
+      <div className="flex items-center gap-4">
+        <span
+          className="text-xs tracking-[0.2em]"
+          style={{ fontFamily: "var(--font-mono)", color: "var(--text-secondary)" }}
+        >
+          SYSAI / AUTONOMOUS OPTIMIZATION ENGINE
+        </span>
+        <div className="h-3 w-px" style={{ backgroundColor: "var(--border-bright)" }} />
+        <span
+          className="text-xs tracking-widest"
+          style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}
+        >
+          v0.1.0
         </span>
       </div>
 
-      <div className="flex items-center gap-6">
-        {/* Connection status */}
+      {/* Right */}
+      <div className="flex items-center gap-5">
+        {/* CPU quick stat */}
+        {snapshot && (
+          <div className="flex items-center gap-2">
+            <span className="text-xs" style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>CPU</span>
+            <span
+              className="text-xs font-bold"
+              style={{
+                fontFamily: "var(--font-mono)",
+                color: snapshot.cpu.usage_percent > 80 ? "var(--neon-red)" :
+                       snapshot.cpu.usage_percent > 50 ? "var(--neon-amber)" : "var(--neon-green)",
+              }}
+            >
+              {snapshot.cpu.usage_percent.toFixed(1)}%
+            </span>
+          </div>
+        )}
+
+        {/* Divider */}
+        <div className="h-3 w-px" style={{ backgroundColor: "var(--border-bright)" }} />
+
+        {/* Connection */}
         <div className="flex items-center gap-2">
-          {connected ? (
-            <>
-              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-              <Wifi size={14} style={{ color: "var(--accent-green)" }} />
-              <span className="text-xs" style={{ color: "var(--accent-green)" }}>
-                LIVE
-              </span>
-            </>
-          ) : (
-            <>
-              <span className="w-2 h-2 rounded-full bg-red-400" />
-              <WifiOff size={14} style={{ color: "var(--accent-red)" }} />
-              <span className="text-xs" style={{ color: "var(--accent-red)" }}>
-                DISCONNECTED
-              </span>
-            </>
-          )}
+          <Signal
+            size={12}
+            style={{ color: connected ? "var(--neon-green)" : "var(--neon-red)" }}
+          />
+          <span
+            className="text-xs tracking-widest"
+            style={{
+              fontFamily: "var(--font-mono)",
+              color: connected ? "var(--neon-green)" : "var(--neon-red)",
+            }}
+          >
+            {connected ? "LIVE" : "OFFLINE"}
+          </span>
+          {connected && <div className="status-dot" />}
         </div>
 
-        {/* Clock */}
+        {/* Divider */}
+        <div className="h-3 w-px" style={{ backgroundColor: "var(--border-bright)" }} />
+
+        {/* Time */}
         <div className="flex items-center gap-2">
-          <Clock size={14} style={{ color: "var(--text-secondary)" }} />
-          <span className="text-xs font-mono" style={{ color: "var(--text-secondary)" }}>
-            {time}
+          <Clock4 size={11} style={{ color: "var(--text-muted)" }} />
+          <span
+            className="text-xs"
+            style={{ fontFamily: "var(--font-mono)", color: "var(--text-secondary)" }}
+          >
+            {date} <span style={{ color: "var(--neon-cyan)" }}>{time}</span>
           </span>
         </div>
       </div>

@@ -1,19 +1,12 @@
 "use client";
 
 import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
+  AreaChart, Area, XAxis, YAxis,
+  CartesianGrid, Tooltip, ResponsiveContainer
 } from "recharts";
 import { SystemSnapshot } from "@/types/metrics";
 
-interface Props {
-  history: SystemSnapshot[];
-}
+interface Props { history: SystemSnapshot[]; }
 
 export function RAMChart({ history }: Props) {
   const data = history.map((s, i) => ({
@@ -22,67 +15,64 @@ export function RAMChart({ history }: Props) {
     swap: parseFloat(s.ram.swap_percent.toFixed(1)),
   }));
 
+  const latest = data[data.length - 1]?.ram ?? 0;
+
   return (
-    <div
-      className="rounded-xl border p-5"
-      style={{ backgroundColor: "var(--bg-card)", borderColor: "var(--border)" }}
-    >
-      <p
-        className="text-xs uppercase tracking-widest mb-4"
-        style={{ color: "var(--text-secondary)" }}
-      >
-        Memory Usage — Live
-      </p>
-      <ResponsiveContainer width="100%" height={180}>
+    <div className="tactical-card clip-chamfer p-4 relative group overflow-hidden">
+      {/* Background Graphic */}
+      <div className="absolute right-0 top-0 bottom-0 w-1/2 z-0 opacity-20 pointer-events-none" style={{
+        backgroundImage: "url('/ram_render.png')", 
+        backgroundSize: "cover", 
+        backgroundPosition: "right center",
+        maskImage: "linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)",
+        WebkitMaskImage: "linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)"
+      }} />
+
+      <div className="relative z-10 flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-1 h-4 bg-[var(--text-primary)]" />
+          <span className="text-xs font-bold tracking-[0.2em] uppercase" style={{ fontFamily: "var(--font-display)", color: "var(--text-secondary)" }}>
+            Memory Realtime
+          </span>
+        </div>
+        <span className="text-lg font-black" style={{ fontFamily: "var(--font-display)", color: "var(--text-bright)" }}>
+          {latest}%
+        </span>
+      </div>
+      <ResponsiveContainer width="100%" height={140}>
         <AreaChart data={data}>
           <defs>
-            <linearGradient id="ramGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.3} />
-              <stop offset="95%" stopColor="#7c3aed" stopOpacity={0} />
-            </linearGradient>
-            <linearGradient id="swapGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#00d4ff" stopOpacity={0.2} />
-              <stop offset="95%" stopColor="#00d4ff" stopOpacity={0} />
+            <linearGradient id="ramG" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--text-primary)" stopOpacity={0.6} />
+              <stop offset="100%" stopColor="var(--text-primary)" stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+          <CartesianGrid strokeDasharray="1 3" stroke="var(--border)" vertical={false} />
           <XAxis dataKey="t" hide />
           <YAxis
             domain={[0, 100]}
-            tick={{ fill: "var(--text-muted)", fontSize: 10 }}
-            tickFormatter={(v) => `${v}%`}
+            tick={{ fill: "var(--text-muted)", fontSize: 10, fontFamily: "var(--font-mono)", fontWeight: "bold" }}
+            width={24}
+            axisLine={false}
+            tickLine={false}
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: "var(--bg-secondary)",
-              border: "1px solid var(--border)",
-              borderRadius: 8,
+              backgroundColor: "var(--bg-void)",
+              border: "1px solid var(--text-primary)",
+              borderRadius: 0,
               color: "var(--text-primary)",
               fontSize: 12,
+              fontFamily: "var(--font-mono)",
+              fontWeight: "bold",
             }}
-            formatter={(value, name) => [
-              `${value ?? 0}%`,
-            name === "ram" ? "RAM" : "Swap",
-        ]}
+            itemStyle={{ color: "var(--text-primary)" }}
+            formatter={(value, name) => [`${value ?? 0}%`, name === "ram" ? "RAM" : "SWAP"]}
             labelFormatter={() => ""}
           />
-          <Area
-            type="monotone"
-            dataKey="ram"
-            stroke="#7c3aed"
-            strokeWidth={2}
-            fill="url(#ramGrad)"
-            dot={false}
-            isAnimationActive={false}
-          />
-          <Area
-            type="monotone"
-            dataKey="swap"
-            stroke="var(--accent-cyan)"
-            strokeWidth={1.5}
-            fill="url(#swapGrad)"
-            dot={false}
-            isAnimationActive={false}
+          <Area type="step" dataKey="ram"
+            stroke="var(--text-primary)" strokeWidth={2}
+            fill="url(#ramG)" dot={false} isAnimationActive={false}
           />
         </AreaChart>
       </ResponsiveContainer>

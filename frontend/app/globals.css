@@ -2,50 +2,76 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;700&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+
 :root {
-  --bg-primary: #0a0a0f;
-  --bg-secondary: #0f0f1a;
-  --bg-card: #13131f;
-  --bg-card-hover: #1a1a2e;
-  --border: #1e1e3a;
-  --accent-cyan: #00d4ff;
-  --accent-blue: #0066ff;
-  --accent-purple: #7c3aed;
-  --accent-green: #00ff88;
-  --accent-red: #ff3366;
-  --accent-amber: #ffaa00;
-  --text-primary: #e2e8f0;
-  --text-secondary: #64748b;
-  --text-muted: #334155;
+  --bg-void: #000000;
+  --bg-primary: #0f1115;
+  --bg-secondary: #161b22;
+  --bg-card: #1c252e;
+  --bg-card-hover: #26333e;
+  --border: #313d49;
+  --border-bright: #445566;
+
+  --valorant-red: #ff4655;
+  --valorant-dark: #0f1923;
+  --valorant-light: #ece8e1;
+  --valorant-accent: #bd3944;
+
+  --text-primary: #ece8e1;
+  --text-secondary: #8b97a3;
+  --text-muted: #5e6c79;
+  --text-bright: #ffffff;
+
+  --font-mono: 'Rajdhani', monospace; /* Using Rajdhani for numbers/tech text */
+  --font-display: 'Oswald', sans-serif;
+  --font-body: 'Inter', sans-serif;
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
+* { box-sizing: border-box; padding: 0; margin: 0; }
+
+html { scroll-behavior: smooth; }
 
 body {
-  background-color: var(--bg-primary);
+  background-color: var(--bg-void);
   color: var(--text-primary);
-  font-family: 'Inter', 'JetBrains Mono', monospace;
+  font-family: var(--font-body);
   overflow-x: hidden;
 }
 
 /* Scrollbar */
-::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg-primary); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: var(--accent-cyan); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--valorant-red); }
 
-/* Glow effects */
-.glow-cyan { box-shadow: 0 0 20px rgba(0, 212, 255, 0.15); }
-.glow-green { box-shadow: 0 0 20px rgba(0, 255, 136, 0.15); }
-.glow-red { box-shadow: 0 0 20px rgba(255, 51, 102, 0.15); }
+/* Clip-path utilities for chamfered corners */
+.clip-chamfer {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+}
+.clip-chamfer-tl {
+  clip-path: polygon(12px 0, 100% 0, 100% 100%, 0 100%, 0 12px);
+}
 
-/* Animated gradient border */
-.gradient-border {
-  border: 1px solid transparent;
-  background-clip: padding-box;
+/* Tactical Card Base */
+.tactical-card {
+  background: var(--bg-card);
+  border-top: 2px solid var(--border-bright);
   position: relative;
+}
+
+.tactical-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 12px; height: 12px;
+  background: var(--valorant-red);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+
+.text-valorant {
+  color: var(--valorant-red);
+}
+.bg-valorant {
+  background-color: var(--valorant-red);
 }
