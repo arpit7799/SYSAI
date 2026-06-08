@@ -6,16 +6,13 @@ from app.db.base import Base
 from app.db.session import engine
 from app.services.db_writer import DBWriter
 from app.agents.monitoring_agent import MonitoringAgent
+from app.services.anomaly_service import run_anomaly_detection
 
 _monitor = MonitoringAgent()
 _writer = DBWriter()
 
 
 async def _background_db_writer():
-    """
-    Background task — collects a snapshot every 5 seconds and saves to DB.
-    Runs for the entire lifetime of the application.
-    """
     log.info("Background DB writer started")
     while True:
         try:
@@ -26,22 +23,37 @@ async def _background_db_writer():
         await asyncio.sleep(5)
 
 
+async def _background_anomaly_detector():
+    """
+    Runs anomaly detection every 30 seconds.
+    Waits 60 seconds on startup to let DB collect enough data.
+    """
+    log.info("Background anomaly detector started")
+    await asyncio.sleep(60)  # wait for initial data
+    while True:
+        try:
+            await run_anomaly_detection()
+        except Exception as e:
+            log.error("Anomaly detection error", error=str(e))
+        await asyncio.sleep(30)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # ── STARTUP ──
     setup_logging()
     log.info("SYSAI starting", env=app.state.settings.app_env)
 
-    # Create all tables if they don't exist
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     log.info("Database tables ready")
 
-    # Start background snapshot writer
-    task = asyncio.create_task(_background_db_writer())
+    task1 = asyncio.create_task(_background_db_writer())
+    task2 = asyncio.create_task(_background_anomaly_detector())
 
-    yield  # app runs here
+    yield
 
     # ── SHUTDOWN ──
-    task.cancel()
+    task1.cancel()
+    task2.cancel()
     log.info("SYSAI shutting down")

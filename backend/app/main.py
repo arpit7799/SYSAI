@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import get_settings
 from app.core.events import lifespan
-from app.api.v1 import health, monitoring, stream, history, prediction
+from app.api.v1 import health, monitoring, stream, history, prediction, anomaly
 
 settings = get_settings()
 
@@ -14,7 +14,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS — allow frontend to call backend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -30,3 +29,4 @@ app.include_router(monitoring.router, prefix="/api/v1")
 app.include_router(stream.router)
 app.include_router(history.router, prefix="/api/v1")
 app.include_router(prediction.router, prefix="/api/v1")
+app.include_router(anomaly.router, prefix="/api/v1")

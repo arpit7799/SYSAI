@@ -11,6 +11,7 @@ import { DiskChart } from "@/components/charts/DiskChart";
 import { Cpu, MemoryStick, HardDrive, Network } from "lucide-react";
 import { formatBytes } from "@/lib/utils";
 import { PredictionPanel } from "@/components/dashboard/PredictionPanel";
+import { AnomalyPanel } from "@/components/dashboard/AnomalyPanel";
 
 export default function DashboardPage() {
   const { snapshot, history, connected } = useMetricsContext();
@@ -148,6 +149,17 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Anomaly Detection */}
+        <div>
+          <h2
+            className="text-xs tracking-[0.3em] mb-3"
+            style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}
+          >
+            ANOMALY DETECTION / REAL-TIME
+          </h2>
+          <AnomalyPanel />
+        </div>
+        
         {/* Process table */}
         <div className="tactical-card clip-chamfer p-5">
           <div className="flex items-center gap-3 mb-4">
