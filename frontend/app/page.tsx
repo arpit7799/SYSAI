@@ -10,6 +10,7 @@ import { PerCoreChart } from "@/components/charts/PerCoreChart";
 import { DiskChart } from "@/components/charts/DiskChart";
 import { Cpu, MemoryStick, HardDrive, Network } from "lucide-react";
 import { formatBytes } from "@/lib/utils";
+import { PredictionPanel } from "@/components/dashboard/PredictionPanel";
 
 export default function DashboardPage() {
   const { snapshot, history, connected } = useMetricsContext();
@@ -67,11 +68,11 @@ export default function DashboardPage() {
   return (
     <div className="relative min-h-full">
       {/* Background Image */}
-      <div 
+      <div
         className="absolute inset-0 z-0 opacity-20 pointer-events-none bg-cover bg-center"
         style={{ backgroundImage: "url('/valorant_bg.png')" }}
       />
-      
+
       {/* Content wrapper */}
       <div className="p-6 space-y-6 relative z-10">
 
@@ -132,6 +133,21 @@ export default function DashboardPage() {
           <DiskChart history={history} />
         </div>
 
+        {/* Prediction Panels */}
+        <div>
+          <h2
+            className="text-xs tracking-[0.3em] mb-3"
+            style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}
+          >
+            AI FORECAST / NEXT 50 SECONDS
+          </h2>
+          <div className="grid grid-cols-3 gap-3">
+            <PredictionPanel metric="cpu"  label="CPU"  accentColor="#ff4655" />
+            <PredictionPanel metric="ram"  label="RAM"  accentColor="#7c3aed" />
+            <PredictionPanel metric="disk" label="DISK" accentColor="#f59e0b" />
+          </div>
+        </div>
+
         {/* Process table */}
         <div className="tactical-card clip-chamfer p-5">
           <div className="flex items-center gap-3 mb-4">
@@ -161,28 +177,31 @@ export default function DashboardPage() {
 
           <div className="space-y-1">
             {snapshot.top_processes.slice(0, 5).map((proc, i) => (
-              <motion.div
-                key={proc.pid}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.05 }}
-                className="grid grid-cols-4 gap-4 py-2 px-3 text-sm transition-colors group cursor-default"
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  borderLeft: "4px solid transparent",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.backgroundColor = "var(--bg-card-hover)";
-                  (e.currentTarget as HTMLElement).style.borderLeftColor = "var(--valorant-red)";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.backgroundColor = "transparent";
-                  (e.currentTarget as HTMLElement).style.borderLeftColor = "transparent";
-                }}
+          <motion.div
+            key={proc.pid}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: i * 0.05 }}
+            className="
+              grid grid-cols-4 gap-4 py-2 px-3 text-sm
+              transition-all duration-200
+              group cursor-default
+              border-l-4 border-transparent
+              hover:bg-[var(--bg-card-hover)]
+              hover:border-l-[var(--valorant-red)]
+            "
+            style={{
+              fontFamily: "var(--font-mono)",
+            }}
               >
-                <span className="truncate font-bold text-[var(--text-primary)] group-hover:text-white transition-colors">{proc.name}</span>
+                <span className="truncate font-bold text-[var(--text-primary)] group-hover:text-white transition-colors">
+                  {proc.name}
+                </span>
                 <span className="text-[var(--text-secondary)]">{proc.pid}</span>
-                <span className="font-bold" style={{ color: proc.cpu_percent > 50 ? "var(--valorant-red)" : "inherit" }}>
+                <span
+                  className="font-bold"
+                  style={{ color: proc.cpu_percent > 50 ? "var(--valorant-red)" : "inherit" }}
+                >
                   {proc.cpu_percent.toFixed(1)}%
                 </span>
                 <span className="font-bold">{proc.memory_percent.toFixed(1)}%</span>
@@ -190,6 +209,7 @@ export default function DashboardPage() {
             ))}
           </div>
         </div>
+
       </div>
     </div>
   );
