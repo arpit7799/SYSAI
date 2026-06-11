@@ -12,6 +12,7 @@ import { Cpu, MemoryStick, HardDrive, Network } from "lucide-react";
 import { formatBytes } from "@/lib/utils";
 import { PredictionPanel } from "@/components/dashboard/PredictionPanel";
 import { AnomalyPanel } from "@/components/dashboard/AnomalyPanel";
+import { OptimizerPanel } from "@/components/dashboard/OptimizerPanel";
 
 export default function DashboardPage() {
   const { snapshot, history, connected } = useMetricsContext();
@@ -158,6 +159,17 @@ export default function DashboardPage() {
             ANOMALY DETECTION / REAL-TIME
           </h2>
           <AnomalyPanel />
+        </div>
+
+        {/* Optimizer */}
+        <div>
+          <h2
+            className="text-xs tracking-[0.3em] mb-3"
+            style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}
+          >
+            AUTONOMOUS OPTIMIZER
+          </h2>
+          <OptimizerPanel />
         </div>
         
         {/* Process table */}
