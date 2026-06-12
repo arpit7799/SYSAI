@@ -201,6 +201,7 @@ export default function LoginPage() {
           style={{ fontFamily: "var(--font-mono)", color: "#4a5568" }}
         >
           SYSAI v0.1.0 · SECURED BY JWT
+          
         </p>
       </motion.div>
     </div>
