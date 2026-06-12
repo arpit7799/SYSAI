@@ -1,13 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useMetricsContext } from "@/components/providers/MetricsProvider";
-import { Signal, Clock4 } from "lucide-react";
+import { Signal, Clock4, LogOut } from "lucide-react";
 
 export function Navbar() {
+  const router = useRouter();
   const { connected, snapshot } = useMetricsContext();
   const [time, setTime] = useState("");
   const [date, setDate] = useState("");
+  const [user, setUser] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Read auth state after mount to avoid SSR hydration mismatch
+    setUser(localStorage.getItem("sysai_user"));
+  }, []);
 
   useEffect(() => {
     const update = () => {
@@ -19,6 +27,12 @@ export function Navbar() {
     const i = setInterval(update, 1000);
     return () => clearInterval(i);
   }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("sysai_token");
+    localStorage.removeItem("sysai_user");
+    router.replace("/login");
+  };
 
   return (
     <header
@@ -102,6 +116,31 @@ export function Navbar() {
             {date} <span style={{ color: "var(--neon-cyan)" }}>{time}</span>
           </span>
         </div>
+
+        {/* Divider + User + Logout — only when authenticated */}
+        {user && (
+          <>
+            <div className="h-3 w-px" style={{ backgroundColor: "var(--border-bright)" }} />
+            <span
+              className="text-xs tracking-widest"
+              style={{ fontFamily: "var(--font-mono)", color: "var(--text-secondary)" }}
+            >
+              {user.toUpperCase()}
+            </span>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-1.5 text-xs px-2 py-1 tracking-widest transition-colors hover:bg-[#ff465515]"
+              style={{
+                fontFamily: "var(--font-mono)",
+                color: "#ff4655",
+                border: "1px solid #ff465530",
+              }}
+            >
+              <LogOut size={10} />
+              LOGOUT
+            </button>
+          </>
+        )}
       </div>
     </header>
   );

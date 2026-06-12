@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Sidebar } from "@/components/layout/Sidebar";
-import { Navbar } from "@/components/layout/Navbar";
-import { MetricsProvider } from "@/components/providers/MetricsProvider";
+import { ClientLayout } from "@/components/providers/ClientLayout";
 
 export const metadata: Metadata = {
   title: "SYSAI — OS Optimization Engine",
@@ -17,18 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <MetricsProvider>
-          <div className="flex h-screen overflow-hidden">
-            <Sidebar />
-            <div className="flex flex-col flex-1 overflow-hidden">
-              <Navbar />
-              <main className="flex-1 overflow-y-auto"
-                    style={{ backgroundColor: "var(--bg-primary)" }}>
-                {children}
-              </main>
-            </div>
-          </div>
-        </MetricsProvider>
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );

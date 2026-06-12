@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Zap, CheckCircle, XCircle, AlertTriangle, Play } from "lucide-react";
+import { Zap, CheckCircle, XCircle, Play } from "lucide-react";
 
 interface OptimizationAction {
   action: string;
