@@ -2,7 +2,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import get_settings
 from app.core.events import lifespan
-from app.api.v1 import health, monitoring, stream, history, prediction, anomaly, optimization, auth
+from app.api.v1 import (
+    health, monitoring, stream, history, prediction,
+    anomaly, optimization, auth, agents
+)
 
 settings = get_settings()
 
@@ -32,3 +35,4 @@ app.include_router(prediction.router, prefix="/api/v1")
 app.include_router(anomaly.router, prefix="/api/v1")
 app.include_router(optimization.router, prefix="/api/v1")
 app.include_router(auth.router, prefix="/api/v1")
+app.include_router(agents.router, prefix="/api/v1")

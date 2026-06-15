@@ -61,3 +61,16 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     is_admin = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class AgentEvent(Base):
+    """
+    Log of all agent events for auditability and debugging.
+    """
+    __tablename__ = "agent_events"
+
+    id = Column(Integer, primary_key=True, index=True)
+    timestamp = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+    agent_name = Column(String(100), index=True)
+    event_type = Column(String(100), index=True)
+    channel = Column(String(100))
+    data = Column(JSON, nullable=True)
