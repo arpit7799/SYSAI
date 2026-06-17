@@ -7,6 +7,7 @@ from app.schemas.metrics import (
     NetworkMetrics, ProcessInfo, SystemSnapshot
 )
 from app.core.logger import log
+from datetime import datetime
 
 
 class SystemMonitor:
@@ -119,24 +120,26 @@ class SystemMonitor:
         return round((cpu_score * 0.4) + (ram_score * 0.4) + (disk_score * 0.2), 2)
 
     def snapshot(self) -> SystemSnapshot:
-        """
-        Full system snapshot — called by the API and the WebSocket streamer.
-        """
-        log.info("Taking system snapshot")
-
+        """Take a system snapshot with simple health scoring."""
         cpu = self.get_cpu()
         ram = self.get_ram()
         disk = self.get_disk()
         network = self.get_network()
-        processes = self.get_top_processes()
-        health = self._calculate_health_score(cpu, ram, disk)
+        top_processes = self.get_top_processes()
+
+        # For now, use placeholder — will be replaced with async ML in Step 12.5
+        # The async health scoring happens in the MonitoringAgent
+        cpu_score = max(0, 100 - cpu.usage_percent)
+        ram_score = max(0, 100 - ram.usage_percent)
+        disk_score = max(0, 100 - disk.usage_percent)
+        health_score = (cpu_score * 0.4) + (ram_score * 0.4) + (disk_score * 0.2)
 
         return SystemSnapshot(
-            timestamp=datetime.now(timezone.utc).isoformat(),
-            cpu=cpu,
-            ram=ram,
-            disk=disk,
-            network=network,
-            top_processes=processes,
-            health_score=health,
-        )
+        timestamp=datetime.utcnow().isoformat(),  # ← ADD THIS
+        cpu=cpu,
+        ram=ram,
+        disk=disk,
+        network=network,
+        health_score=health_score,
+        top_processes=top_processes,
+    )

@@ -51,5 +51,5 @@ class SystemSnapshot(BaseModel):
     ram: RAMMetrics
     disk: DiskMetrics
     network: NetworkMetrics
-    top_processes: List[ProcessInfo]  # top 10 by CPU
-    health_score: float               # simple score for now
+    top_processes: List[ProcessInfo]  
+    health_score: float             

@@ -27,4 +27,5 @@ class AgentStatusSummary(BaseModel):
     prediction: AgentStatus
     anomaly: AgentStatus
     optimizer: AgentStatus
+    health: AgentStatus
     recent_events: list[AgentEventResponse]

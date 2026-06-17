@@ -4,9 +4,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
 from app.db.models import AgentEvent as AgentEventModel
 from app.schemas.agent_event import AgentEventResponse, AgentStatusSummary, AgentStatus
+from app.core.events import _monitor, _prediction, _anomaly, _optimizer, _health
 
 router = APIRouter()
-
 
 @router.get(
     "/agents/status",
@@ -16,9 +16,6 @@ router = APIRouter()
 )
 async def get_agent_status(db: AsyncSession = Depends(get_db)):
     """Get real-time status of all autonomous agents."""
-    # Import the RUNNING agent instances from events.py
-    from app.core.events import _monitor, _prediction, _anomaly, _optimizer
-    
     result = await db.execute(
         select(AgentEventModel)
         .order_by(desc(AgentEventModel.timestamp))
@@ -31,5 +28,6 @@ async def get_agent_status(db: AsyncSession = Depends(get_db)):
         prediction=AgentStatus(**_prediction.get_status()),
         anomaly=AgentStatus(**_anomaly.get_status()),
         optimizer=AgentStatus(**_optimizer.get_status()),
+        health=AgentStatus(**_health.get_status()),  # ← add this
         recent_events=[AgentEventResponse.model_validate(e) for e in recent],
     )

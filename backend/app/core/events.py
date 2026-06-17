@@ -10,11 +10,13 @@ from app.agents.monitoring_agent import MonitoringAgent
 from app.agents.prediction_agent import PredictionAgent
 from app.agents.anomaly_agent import AnomalyAgent
 from app.agents.optimizer_agent import OptimizerAgent
+from app.agents.health_agent import HealthAgent
 
 _monitor = MonitoringAgent()
 _prediction = PredictionAgent()
 _anomaly = AnomalyAgent()
 _optimizer = OptimizerAgent()
+_health = HealthAgent()
 
 _writer = DBWriter()
 _agent_tasks = []
@@ -41,18 +43,17 @@ async def lifespan(app: FastAPI):
         await conn.run_sync(Base.metadata.create_all)
     log.info("Database tables ready")
 
-    # Connect Redis
     await redis_manager.connect()
 
-    # Start agent loops
     task_db = asyncio.create_task(_background_db_writer())
     task_monitoring = asyncio.create_task(_monitor.run_loop())
     task_prediction = asyncio.create_task(_prediction.run_loop())
     task_anomaly = asyncio.create_task(_anomaly.run_loop())
     task_optimizer = asyncio.create_task(_optimizer.run_loop())
+    task_health = asyncio.create_task(_health.run_loop())
 
     _agent_tasks.extend([
-        task_db, task_monitoring, task_prediction, task_anomaly, task_optimizer
+        task_db, task_monitoring, task_prediction, task_anomaly, task_optimizer, task_health
     ])
 
     yield
