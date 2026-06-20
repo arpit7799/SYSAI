@@ -1,0 +1,106 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: sysai-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-sysai}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sysai_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-sysai}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sysai}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sysai-network
+    restart: unless-stopped
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    container_name: sysai-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sysai-network
+    restart: unless-stopped
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sysai-backend
+    environment:
+      APP_NAME: SYSAI
+      APP_ENV: ${APP_ENV:-production}
+      APP_VERSION: 0.1.0
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-sysai}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sysai_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-sysai}
+      REDIS_URL: redis://redis:6379
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-production}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    networks:
+      - sysai-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: sysai-frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://backend:8000
+      BACKEND_INTERNAL_URL: http://backend:8000
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - sysai-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  sysai-network:
+    driver: bridge
