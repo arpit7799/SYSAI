@@ -1,5 +1,6 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from functools import lru_cache
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -20,14 +21,14 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
 
     # Database
-    postgres_host: str = "localhost"
+    postgres_host: str = "postgres"
     postgres_port: int = 5432
     postgres_db: str = "sysai"
     postgres_user: str = "sysai"
     postgres_password: str = "sysai_secret"
 
     # Redis
-    redis_host: str = "localhost"
+    redis_host: str = "redis"
     redis_port: int = 6379
     redis_password: str = ""
 
@@ -42,13 +43,26 @@ class Settings(BaseSettings):
 
     @property
     def redis_url(self) -> str:
+        """Redis connection URL."""
         if self.redis_password:
-            return f"redis://:{self.redis_password}@{self.redis_host}:{self.redis_port}/0"
+            return (
+                f"redis://:{self.redis_password}@"
+                f"{self.redis_host}:{self.redis_port}/0"
+            )
         return f"redis://{self.redis_host}:{self.redis_port}/0"
 
-    model_config = SettingsConfigDict(env_file=".env", case_sensitive=False)
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        case_sensitive=False,
+    )
 
 
 @lru_cache()
 def get_settings() -> Settings:
+    """Return cached settings instance."""
     return Settings()
+
+
+# Backward compatibility for existing imports:
+# from app.core.config import settings
+settings = get_settings()

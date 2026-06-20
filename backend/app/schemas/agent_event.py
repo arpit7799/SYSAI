@@ -1,25 +1,23 @@
 from pydantic import BaseModel
-from typing import Dict, Any
 from datetime import datetime
-
-
-class AgentEventResponse(BaseModel):
-    id: int
-    timestamp: datetime
-    agent_name: str
-    event_type: str
-    channel: str
-    data: Dict[str, Any]
-
-    class Config:
-        from_attributes = True
+from typing import List
 
 
 class AgentStatus(BaseModel):
     name: str
     status: str
     event_count: int
-    last_run: str | None
+    last_run: datetime | None
+
+
+class AgentEventResponse(BaseModel):
+    id: int
+    agent_name: str
+    event_type: str
+    timestamp: datetime
+
+    class Config:
+        from_attributes = True
 
 
 class AgentStatusSummary(BaseModel):
@@ -27,5 +25,4 @@ class AgentStatusSummary(BaseModel):
     prediction: AgentStatus
     anomaly: AgentStatus
     optimizer: AgentStatus
-    health: AgentStatus
-    recent_events: list[AgentEventResponse]
+    recent_events: List[AgentEventResponse]

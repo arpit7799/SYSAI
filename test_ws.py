@@ -1,19 +1,13 @@
 import asyncio
 import websockets
-import json
 
-
-async def listen():
-    uri = "ws://localhost:8000/ws/metrics"
-    print(f"Connecting to {uri}...\n")
+async def main():
+    uri = "ws://localhost:8000/api/v1/ws/metrics"
 
     async with websockets.connect(uri) as ws:
-        for i in range(5):  # receive 5 snapshots then stop
-            raw = await ws.recv()
-            data = json.loads(raw)
-            print(f"[{i+1}] CPU: {data['cpu']['usage_percent']}% | "
-                  f"RAM: {data['ram']['usage_percent']}% | "
-                  f"Health: {data['health_score']}")
+        print("Connected")
+        while True:
+            msg = await ws.recv()
+            print(msg)
 
-
-asyncio.run(listen())
+asyncio.run(main())

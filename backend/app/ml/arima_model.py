@@ -14,8 +14,8 @@ class ARIMAForecaster:
     """
 
     def __init__(self):
-        self.ar_coef = 0.7    # autoregressive coefficient
-        self.ma_coef = 0.3    # moving average coefficient
+        self.ar_coef = 0.7 
+        self.ma_coef = 0.3 
 
     def predict(self, values: List[float], steps: int = 10) -> List[float]:
         if len(values) < 5:
